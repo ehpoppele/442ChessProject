@@ -29,7 +29,7 @@
 #include <ctype.h>
 #include <assert.h>
 #include <algorithm>
-#include "thc.h"
+#include "thc.hh"
 using namespace std;
 using namespace thc;
 /****************************************************************************

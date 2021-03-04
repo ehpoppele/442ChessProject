@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
-#include "thc.h"
+#include "THC/thc.hh"
 
 void display_position( thc::ChessRules &cr, const std::string &description )
 {
