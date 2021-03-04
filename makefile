@@ -1,8 +1,9 @@
 CXX=g++
-CXXFLAGS= -Wall -werror -wextra -pedantic -std=c++17 -O3 -g
+CXXFLAGS= -std=c++17 -O3 -g
 LDFLAGS=$(CXXFLAGS)
 OBJ=$(SRC:.cc=.o)
 BUILDDIR=out/
+VPATH=THC/
 
 all: demo
 
