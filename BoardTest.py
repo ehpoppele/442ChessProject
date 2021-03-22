@@ -14,7 +14,7 @@ if __name__ == '__main__':
     print(board.playMove("e4f5"))
     print(board.playMove("g7g5"))
     print(board.playMove("f5g6"))
-    """
+    """ 
     while True:
         move = input("input move: ")
         if move == "q":

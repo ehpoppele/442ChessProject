@@ -4,7 +4,7 @@ import time
 def launchEngine(name, threads):
     engine = pexpect.spawn("./" + name)
     engine.expect('')
-    engine.sendline("setoption name Threads value 24")
+    engine.sendline("setoption name Threads value " + str(threads))
     engine.expect('')
     return engine
 
@@ -19,5 +19,7 @@ def getMove(engine, fen, black_time, white_time):
     bytes = engine.after
     string = bytes.decode('utf-8')
     move = string.split()[1]
+    if move == (None):
+        print(engine.before)
     return(move, elapsed)
 
