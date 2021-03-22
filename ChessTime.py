@@ -4,6 +4,14 @@ import socket
 from TerminalEngine import *
 from Board import *
 
+#Turns milliseconds into readable clock time
+def clockTime(ms):
+    h = str((ms//1000)//3600)
+    m = str(((ms//1000)%3600)//60)
+    s = str((ms//1000)%60)
+    f = str(int(ms%1000))
+    return (h + ':' + m + ':' + s + ':' + f)
+
 if __name__ == "__main__":
     #Sys args are name of side of player (w/b), engine file, number of threads, port number and maybe more (time control etc?)
     if len(sys.argv) < 5:
@@ -27,7 +35,8 @@ if __name__ == "__main__":
         #make first move
         fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
         my_move, time_used = getMove(engine, fen, b_time, w_time)
-        print("My Move: ", my_move)
+        fen, algebraic = board.playMove(my_move)
+        print(algebraic)
         w_time -= time_used
         if w_time <= 0:
             print("You fool! You used up all your time on your first move!")
@@ -42,10 +51,10 @@ if __name__ == "__main__":
         print("No valid argument for player side")
         assert False
     while not(game_over):
+        print(clockTime(w_time), clockTime(b_time))
         data = game_socket.recv(1024)
         opponent_move = data.decode('utf-8').split()[0]
         opponent_time = float(data.decode('utf-8').split()[1])
-        print("Opponent Move: ", opponent_move)
         if side == 'w':
             b_time -= opponent_time
             if b_time <= 0:
@@ -68,9 +77,9 @@ if __name__ == "__main__":
             game_over = True
             outcomes.append("win_mate")
         else: #respond with own move
-            fen = board.playMove(opponent_move)
+            fen, algebraic = board.playMove(opponent_move)
+            print(algebraic)
             my_move, time_used = getMove(engine, fen, b_time, w_time)
-            print("My Move: ", my_move)
             if side == 'w':
                 w_time -= time_used
                 if w_time <= 0:
@@ -89,8 +98,8 @@ if __name__ == "__main__":
                 game_over = True
                 outcomes.append(my_move)
             else:
-                fen = board.playMove(my_move)
-            print("My Move: ", my_move)
+                fen, algebraic = board.playMove(my_move)
+                print(algebraic)
             data = bytes(my_move + ' ' + str(time_used), 'utf-8')
             game_socket.sendall(data)
     game_socket.close()

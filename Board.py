@@ -148,17 +148,31 @@ class Board():
         ret_str += str(self.full_moves)
         return ret_str
         
-    #Takes move as a string and returns a FEN notation
+    #Takes move as a string and returns a FEN of game along with algebraic notation of the move
     #First version will allow illegal moves, I guess? in that we assume stockfish never gives us an illegal move
     #Will add stuff to allow castling later
     def playMove(self, move):
         #Get piece moved and confirm no immediate issues
-        assert len(move)==4 #Move should always be of the form xNyM, where x,y are in columns a-h and N, M in rows 1-8
+        if len(move) != 4: 
+            print(move)
+            assert False #Move should always be of the form xNyM, where x,y are in columns a-h and N, M in rows 1-8
         piece, player = self.pieceAt(move[0:2])
         assert player == self.active_player
         assert piece != ' '
         target, target_player = self.pieceAt(move[2:])
         assert (target_player is None or target_player != self.active_player)
+        
+        #algebraic doesn't work for castling, check, or checkmate rn
+        algebraic = move[2:]
+        if target != ' ':
+            algebraic = 'x' + algebraic
+        if piece.lower() != 'p':
+            algebraic = piece.upper() + algebraic
+        else:
+            algebraic = move[0:2] + algebraic
+        if active_player == 'b':
+            algebraic = "... " + algebraic
+        algebraic = str(self.full_moves) + ". " + algebraic
         
         #update halfmoves
         if (piece.lower() != 'p' and target == ' '):
@@ -189,13 +203,13 @@ class Board():
         
         #Stockfish will give None for bestmove if the game is over, so we only need to check 50 move rule and 3fold repetition
         if self.half_moves == 100:
-            return 'draw'
+            return 'draw', algebraic
         #Still need to check 3fold repetition rule here
         #This is my current solution to endless games
         if self.full_moves > 500:
-            return 'draw'
+            return 'draw', algebraic
         else:
-            return self.FEN()
+            return self.FEN(), algebraic
     
     
     
