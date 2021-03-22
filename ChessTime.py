@@ -4,14 +4,14 @@ import socket
 from TerminalEngine import *
 from Board import *
 
-if main:
+if __name__ == "__main__":
     #Sys args are name of side of player (w/b), engine file, number of threads, port number and maybe more (time control etc?)
     if len(sys.argv) < 5:
         print("Missing an arg")
         assert False
     side = sys.argv[1]
     engine = launchEngine(sys.argv[2], sys.argv[3])
-    port = sys.argv[4]
+    port = int(sys.argv[4])
     board = Board()
     b_time = 60000
     w_time = 60000
@@ -21,12 +21,13 @@ if main:
     if side == 'w':
         listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         listen_socket.bind(('127.0.0.1', port))#Currently just localhost connection
-        game_socket.listen()
+        listen_socket.listen()
         game_socket, addr = listen_socket.accept()
         print("Connected established by ", addr)
         #make first move
-        fen = #starting board
+        fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
         my_move, time_used = getMove(engine, fen, b_time, w_time)
+        fen = board.playMove(my_move)
         print("My Move: ", my_move)
         w_time -= time_used
         if w_time <= 0:
@@ -42,9 +43,11 @@ if main:
         print("No valid argument for player side")
         assert False
     while not(game_over):
+        print(w_time, b_time)
         data = game_socket.recv(1024)
-        opponent_move = data.decode('utf-8').split[0]
-        opponent_time = data.decode('utf-8').split[1]
+        opponent_move = data.decode('utf-8').split()[0]
+        opponent_time = float(data.decode('utf-8').split()[1])
+        print("Opponent Move: ", opponent_move)
         if side == 'w':
             b_time -= opponent_time
             if b_time <= 0:
@@ -66,11 +69,9 @@ if main:
         elif opponent_move == "loss_mate":
             game_over = True
             outcomes.append("win_mate")
-        print("Opponent Move: ", my_move)
         else: #respond with own move
             fen = board.playMove(opponent_move)
             my_move, time_used = getMove(engine, fen, b_time, w_time)
-            print("Move: ", my_move)
             if side == 'w':
                 w_time -= time_used
                 if w_time <= 0:
