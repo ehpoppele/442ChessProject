@@ -17,7 +17,7 @@ class Board():
         self.active_player = "w"
         self.half_moves = 0
         self.full_moves = 1
-        self.en_passant_capture = ''
+        self.en_passant_capture = '-'
         
     #Returns a tuple of piece name and player, or None if the square is empty
     def pieceAt(self, square):
@@ -35,7 +35,7 @@ class Board():
     #Checks a move to see if en Passant capture is allowed on next move; assumes the move given is a pawn move
     def updateEnPassant(self, move):
         if abs(int(move[3])-int(move[1])) != 2: #Assume a pawn, confirm move is 2 squares
-            self.en_passant_capture = ''
+            self.en_passant_capture = '-'
             return False
         else: #Check adjacent squares
             row = int(move[3])-1
@@ -44,12 +44,12 @@ class Board():
             if col_1 > -1 and col_1 < 8: 
                 piece = self.board[row][col_1]
                 if piece.lower() == 'p' and ((piece.isupper() and self.active_player == "w") or (piece.islower() and self.active_player == "b")): #confirm piece is a pawn of opposite color
-                    self.en_passant_capture = move[0] + str((int(move[3])+int(move[1]))//2) + ' ' 
+                    self.en_passant_capture = move[0] + str((int(move[3])+int(move[1]))//2)
                     return True
             if col_2 > -1 and col_2 < 8: 
                 piece = self.board[row][col_2]
                 if piece.lower() == 'p' and ((piece.isupper() and self.active_player == "w") or (piece.islower() and self.active_player == "b")):
-                    self.en_passant_capture = move[0] + str((int(move[3])+int(move[1]))//2) + ' '
+                    self.en_passant_capture = move[0] + str((int(move[3])+int(move[1]))//2)
                     return True
     
     #Takes move and updates castling_rights
@@ -137,10 +137,12 @@ class Board():
             castle_string += 'k'
         if self.castling_rights[3]:
             castle_string += 'q'
+        if castle_string == '':
+            castle_string = '-'
         ret_str += castle_string
-        if castle_string != '':
-            ret_str += ' '
+        ret_str += ' '
         ret_str += self.en_passant_capture
+        ret_str += ' '
         ret_str += str(self.half_moves)
         ret_str += ' '
         ret_str += str(self.full_moves)
