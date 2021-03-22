@@ -4,7 +4,7 @@ import time
 def launchEngine(name, threads):
     engine = pexpect.spawn("./" + name)
     engine.expect('')
-    engine.sendline("setoption name Threads value " + str(threads))
+    engine.sendline("setoption name Threads value " + threads)
     engine.expect('')
     engine.sendline("position startposition")
     engine.expect('')
