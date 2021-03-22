@@ -5,10 +5,12 @@ import time
 if __name__ == "__main__":
     stockfish = pexpect.spawn("./stockfish")
     stockfish.expect('')
-    stockfish.sendline("setoption name Threads value 24 position fen 8/8/8/8/8/6k1/5q2/7K w - - 0 1")
+    stockfish.sendline("setoption name Threads value 24") 
+    stockfish.expect('')
+    stockfish.sendline("position fen 8/8/8/8/8/6k1/7q/7K w - - 0 1")
     stockfish.expect('')
     start = time.perf_counter()
-    stockfish.sendline("go btime 50000")
+    stockfish.sendline("go wtime 50000")
     stockfish.expect("bestmove .*")
     elapsed = time.perf_counter() - start
     print(elapsed)
