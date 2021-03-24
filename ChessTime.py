@@ -4,6 +4,12 @@ import socket
 from TerminalEngine import *
 from Board import *
 
+#Defining the data/defaults for each component
+bf1_data = {'ip':'192.168.100.2', 'port':4321, 'program':'stockfish_bf1', 'threads':'16', 'wattage':1 }
+cpu_data = {'ip':'192.168.100.1', 'port':4321, 'program':'stockfish_cpu', 'threads':'24', 'wattage':1 }
+ngd_data = {'ip':'192.168.100.2', 'port':4321, 'wattage':1 } 
+sys_data = {'bf1':bf1_data, 'chimera':cpu_data, 'ngd':ngd_data}
+
 #Turns milliseconds into readable clock time
 def clockTime(ms):
     h = str(int((ms//1000)//3600))
@@ -13,18 +19,16 @@ def clockTime(ms):
     return (h + ':' + m + ':' + s + '.' + f)
 
 if __name__ == "__main__":
-    #Sys args are name of side of player (w/b), engine file, number of threads, ip address, port number and maybe more (time control etc?)
-    if len(sys.argv) < 6:
+    #Sys args are name of side of player (w/b) and opponent to connect to
+    if len(sys.argv) < 3:
         print("Missing an arg")
         assert False
     side = sys.argv[1]
-    engine = launchEngine(sys.argv[2], sys.argv[3])
-    ip_addr = sys.argv[4]
-    if ip_addr == 'bf1':
-        ip_addr = '192.168.100.2'
-    if ip_addr == 'cpu':
-        ip_addr = '192.168.100.1'
-    port = int(sys.argv[5])
+    opnt_data = sys_data[sys.argv[2]]
+    self_data = sys_data[socket.gethostname()]
+    engine = launchEngine(self_data['program'], self_data['threads'])
+    #ip_addr = opnt_data['ip']
+    #port = opnt_data['port']
 
     board = Board()
     b_time = 60000
@@ -35,8 +39,10 @@ if __name__ == "__main__":
     listen_socket = None
     game_socket = None
     if side == 'w':
+        w_time = w_time * self_data['wattage']
+        b_time = w_time * opnt_data['wattage']
         listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        listen_socket.bind((ip_addr, port))#Currently just localhost connection
+        listen_socket.bind((self_data['ip'], self_data['port']))#Currently just localhost connection
         listen_socket.listen()
         game_socket, addr = listen_socket.accept()
         print("Connected established by ", addr)
@@ -52,8 +58,10 @@ if __name__ == "__main__":
         data = bytes(my_move + ' ' + str(time_used), 'utf-8')
         game_socket.sendall(data)
     elif side == 'b':
+        b_time = w_time * self_data['wattage']
+        w_time = w_time * opnt_data['wattage']
         game_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        game_socket.connect((ip_addr, port))
+        game_socket.connect((opnt_data['ip'], opnt_data['port']))
         print("Connected established to host")
     else:
         print("No valid argument for player side")
