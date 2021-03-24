@@ -23,17 +23,19 @@ def getMove(engine, fen, black_time, white_time):
     bytes = engine.after
     string = bytes.decode('utf-8')
     move = string.split()[1]
-    if move == "(None)":
+    if move == "(none)":
         #If None was returned, the game is over. We check whether it was draw or mate
         #stockfish gives '... cp 0' for draw and '... mate 0' for mate on the last line
         #so we only check for p or e as the 3rd to last char
         end_string = engine.before.decode('utf-8')
-        end_char = end_string[len(end_string)-3]
+        end_char = end_string[len(end_string)-5]
         if end_char == 'p':
             move = 'draw'
         elif end_char == 'e':
             move = 'loss_mate'
         else:
+            print(end_string)
+            print(end_char)
             print("Game has ended with unrecognized return")
             assert False
     return(move, elapsed*1000) #multiply to get millisecond
