@@ -153,17 +153,24 @@ class Board():
     #Will add stuff to allow castling later
     def playMove(self, move):
         #Get piece moved and confirm no immediate issues
-        if len(move) != 4: 
-            print(move)
-            assert False #Move should always be of the form xNyM, where x,y are in columns a-h and N, M in rows 1-8
+        promotion = False
+        if len(move) != 4:
+            if len(move) == 5: #Promotion moves are 5 long and valid
+                promotion = True
+            else:
+                print(move)
+                assert False #Move should always be of the form xNyM(p), where x,y are in columns a-h and N, M in rows 1-8, p is promotion piece
         piece, player = self.pieceAt(move[0:2])
         assert player == self.active_player
         assert piece != ' '
-        target, target_player = self.pieceAt(move[2:])
+        end_move = move[2:]
+        if promotion:
+            end_move = move[2:4]
+        target, target_player = self.pieceAt(end_move)
         assert (target_player is None or target_player != self.active_player)
         
         #algebraic doesn't work for castling, check, or checkmate rn
-        algebraic = move[2:]
+        algebraic = end_move
         if target != ' ':
             algebraic = 'x' + algebraic
         if piece.lower() != 'p':
@@ -173,6 +180,8 @@ class Board():
         if self.active_player == 'b':
             algebraic = "... " + algebraic
         algebraic = str(self.full_moves) + ". " + algebraic
+        if promotion:
+            algebraic += move[-1].upper()
         
         #update halfmoves
         if (piece.lower() != 'p' and target == ' '):
@@ -191,7 +200,13 @@ class Board():
         #Confirm move was not castling i.e. only one piece moved
         if not self.castlingMove(move): #This function already does the moving if it was castling
             self.board[int(move[1])-1][ord(move[0])-97] = ' '
-            self.board[int(move[3])-1][ord(move[2])-97] = piece
+            if promotion: 
+                if self.active_player == 'w': #Active player has already changed, so we're using opposite
+                    self.board[int(move[3])-1][ord(move[2])-97] = move[-1]
+                else:
+                    self.board[int(move[3])-1][ord(move[2])-97] = move[-1].upper()
+            else:
+                self.board[int(move[3])-1][ord(move[2])-97] = piece
         if (move[2:] + ' ') == self.en_passant_capture:
             if int(move[3])-1 == 5:
                 self.board[4][ord(move[2])-97] = ' '
