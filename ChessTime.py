@@ -6,11 +6,11 @@ from Board import *
 
 #Turns milliseconds into readable clock time
 def clockTime(ms):
-    h = str((ms//1000)//3600)
-    m = str(((ms//1000)%3600)//60)
-    s = str((ms//1000)%60)
+    h = str(int((ms//1000)//3600))
+    m = str(int(((ms//1000)%3600)//60))
+    s = str(int(ms//1000)%60))
     f = str(int(ms%1000))
-    return (h + ':' + m + ':' + s + ':' + f)
+    return (h + ':' + m + ':' + s + '.' + f)
 
 if __name__ == "__main__":
     #Sys args are name of side of player (w/b), engine file, number of threads, port number and maybe more (time control etc?)

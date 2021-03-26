@@ -170,7 +170,7 @@ class Board():
             algebraic = piece.upper() + algebraic
         else:
             algebraic = move[0:2] + algebraic
-        if active_player == 'b':
+        if self.active_player == 'b':
             algebraic = "... " + algebraic
         algebraic = str(self.full_moves) + ". " + algebraic
         
