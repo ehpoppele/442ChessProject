@@ -159,6 +159,7 @@ class Board():
                 promotion = True
             else:
                 print(move)
+                print(self.FEN())
                 assert False #Move should always be of the form xNyM(p), where x,y are in columns a-h and N, M in rows 1-8, p is promotion piece
         piece, player = self.pieceAt(move[0:2])
         assert player == self.active_player
