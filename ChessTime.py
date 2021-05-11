@@ -7,8 +7,8 @@ from Board import *
 #Defining the data/defaults for each component
 bf1_data = {'ip':'192.168.100.2', 'port':4321, 'program':'stockfish_bf1', 'threads':'16', 'wattage':(1/11.5) }
 cpu_data = {'ip':'192.168.100.1', 'port':4321, 'program':'stockfish_cpu', 'threads':'24', 'wattage':(1/93) }
-ngd_data = {'ip':'192.168.100.2', 'port':4321, 'wattage':1 } 
-sys_data = {'bf1':bf1_data, 'chimera':cpu_data, 'ngd':ngd_data}
+ngd_data = {'ip':'192.168.100.2', 'port':4321, 'program':'stockfish_bf1', 'threads':'4', 'wattage':(1/1.2) } 
+sys_data = {'bf1':bf1_data, 'chimera':cpu_data, 'node1':ngd_data}
 
 #Turns milliseconds into readable clock time
 def clockTime(ms):
@@ -41,7 +41,8 @@ if __name__ == "__main__":
         print_game = False
 
     outcomes = []
-    std_time = 60000 * 60
+    std_time = 60000 * 15
+    inc_time =  1000 * 5
     side = ''
     self_time = std_time *self_data['wattage']
     opnt_time = std_time *opnt_data['wattage']
@@ -90,6 +91,7 @@ if __name__ == "__main__":
             if w_time <= 0:
                 print("You fool! You used up all your time on your first move!")
                 assert False
+            w_time += inc_time * self_data['wattage']
             data = bytes(my_move + ' ' + str(time_used), 'utf-8')
             game_socket.sendall(data)
         while not(game_over):
@@ -118,6 +120,10 @@ if __name__ == "__main__":
                 game_over = True
                 outcomes.append("win_mate")
             else: #respond with own move
+                if side == 'w':
+                    b_time += inc_time * opnt_data['wattage']
+                else:
+                    w_time += inc_time * opnt_data['wattage']
                 fen, algebraic = board.playMove(opponent_move)
                 if print_game:
                     print(algebraic)
@@ -145,6 +151,10 @@ if __name__ == "__main__":
                     fen, algebraic = board.playMove(my_move)
                     if print_game:
                         print(algebraic)
+                if side == 'w':
+                    w_time += inc_time * self_data['wattage']
+                else:
+                    b_time += inc_time * self_data['wattage']
                 if print_game and side == 'b':
                     print(clockTime(w_time), clockTime(b_time))
                 data = bytes(my_move + ' ' + str(time_used), 'utf-8')

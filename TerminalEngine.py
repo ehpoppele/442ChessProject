@@ -25,7 +25,8 @@ def getMove(engine, fen, black_time, white_time):
     else:
         print("Couldn't find active player in FEN string")
         assert False
-    engine.expect("bestmove .*", timeout=player_time)
+    timeout_time = max(player_time, 120)
+    engine.expect("bestmove .*", timeout=timeout_time)
     elapsed = time.perf_counter()-start
     bytes = engine.after
     string = bytes.decode('utf-8')
